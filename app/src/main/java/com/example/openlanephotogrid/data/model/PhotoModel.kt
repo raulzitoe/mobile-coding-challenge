@@ -1,5 +1,6 @@
 package com.example.openlanephotogrid.data.model
 
+import com.example.openlanephotogrid.ui.model.PhotoUIModel
 import com.google.gson.annotations.SerializedName
 
 data class PhotoModel(
@@ -22,7 +23,16 @@ data class PhotoModel(
     val currentUserCollections: List<Collection>,
     val urls: Urls,
     val links: PhotoLinks
-)
+) {
+    fun toPhotoUIModel(): PhotoUIModel {
+        return PhotoUIModel(
+            id = id,
+            thumbnailUrl = urls.thumb,
+            width = width,
+            height = height
+        )
+    }
+}
 
 data class User(
     val id: String,

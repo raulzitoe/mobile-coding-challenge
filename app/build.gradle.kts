@@ -54,6 +54,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // Retrofit
     implementation(libs.retrofit)
@@ -67,6 +68,10 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
+
+    // Paging
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
     // Tests and tooling
     testImplementation(libs.junit)
