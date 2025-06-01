@@ -131,7 +131,8 @@ private fun PhotoDetails(
         Text(
             text = userName,
             modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         )
 
         if (description.isNotBlank()) {
@@ -140,7 +141,8 @@ private fun PhotoDetails(
                 modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 10.sp,
-                lineHeight = 10.sp
+                lineHeight = 10.sp,
+                color = Color.White
             )
         }
     }

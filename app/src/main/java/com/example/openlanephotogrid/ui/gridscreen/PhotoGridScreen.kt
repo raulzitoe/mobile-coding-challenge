@@ -1,5 +1,6 @@
 package com.example.openlanephotogrid.ui.gridscreen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,12 +12,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import com.example.openlanephotogrid.R
 import com.example.openlanephotogrid.ui.components.PhotoScrim
 import com.example.openlanephotogrid.ui.model.PhotoUIModel
 import com.example.openlanephotogrid.ui.theme.OPENLANEPhotoGridTheme
@@ -106,31 +111,102 @@ private fun PhotosRow(
     val sumWidth = remember(photo1, newWidth) { photo1.width + newWidth }
 
     Row {
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = photo1.thumbnailUrl,
             contentDescription = null,
             modifier = modifier
                 .weight(photo1.width.toFloat() / sumWidth)
                 .clickable { onPhotoClicked(photo1.id) },
+            error = {
+                // Workaround to have previews
+                if (LocalInspectionMode.current) {
+                    Image(
+                        painter = painterResource(
+                            id = when(photo1.id) {
+                                "1" -> R.drawable.mockimage1
+                                "2" -> R.drawable.mockimage2
+                                else -> R.drawable.mockimage3
+                            }
+                        ),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
+            },
             contentScale = ContentScale.FillWidth,
         )
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = photo2.thumbnailUrl,
             contentDescription = null,
             modifier = modifier
                 .weight(newWidth / sumWidth)
                 .clickable { onPhotoClicked(photo2.id) },
+            error = {
+                // Workaround to have previews
+                if (LocalInspectionMode.current) {
+                    Image(
+                        painter = painterResource(
+                            id = when(photo2.id) {
+                                "1" -> R.drawable.mockimage1
+                                "2" -> R.drawable.mockimage2
+                                else -> R.drawable.mockimage3
+                            }
+                        ),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
+            },
             contentScale = ContentScale.FillWidth
         )
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PhotoGridScreenPreview() {
+    val mockData = listOf(
+        PhotoUIModel(
+            id = "1",
+            thumbnailUrl = "",
+            fullImageUrl = "",
+            width = 200,
+            height = 300,
+            user = "",
+            description = "",
+        ),
+        PhotoUIModel(
+            id = "2",
+            thumbnailUrl = "",
+            fullImageUrl = "",
+            width = 200,
+            height = 305,
+            user = "",
+            description = "",
+        ),
+        PhotoUIModel(
+            id = "3",
+            thumbnailUrl = "",
+            fullImageUrl = "",
+            width = 200,
+            height = 286,
+            user = "",
+            description = "",
+        )
+    )
+
+    val mockList = buildList {
+        repeat(3) {
+            add(mockData[0])
+            add(mockData[1])
+            add(mockData[2])
+        }
+        add(mockData[1])
+    }
+
     OPENLANEPhotoGridTheme {
         PhotoGridContent(
-            photosFlow = MutableStateFlow(PagingData.empty()),
+            photosFlow = MutableStateFlow(PagingData.from(mockList)),
             selectedPhotoId = null,
             onSelectedPhotoChanged = {}
         )
