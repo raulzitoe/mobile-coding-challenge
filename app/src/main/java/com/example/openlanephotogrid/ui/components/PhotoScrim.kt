@@ -1,22 +1,27 @@
 package com.example.openlanephotogrid.ui.components
 
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,6 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -87,22 +95,42 @@ fun PhotoScrim(
                 state = pagerState,
             ) { page ->
                 Box(
-                    modifier = modifier.fillMaxSize().clickable { onSelectedPhotoChanged(null) },
+                    modifier = modifier
+                        .fillMaxSize()
+                        .clickable { onSelectedPhotoChanged(null) },
                     contentAlignment = Alignment.Center
                 ) {
+                    var width by remember { mutableIntStateOf(0) }
+
                     Box {
-
-
                         AsyncImage(
                             model = photos[page]?.fullImageUrl,
                             contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.fillMaxWidth().clickable { isDetailsVisible = true }
+                            contentScale = if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
+                                ContentScale.FillHeight
+                            } else {
+                                ContentScale.FillWidth
+                            },
+                            modifier = Modifier
+                                .then(
+                                    if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
+                                        Modifier.fillMaxHeight()
+                                    } else {
+                                        Modifier.fillMaxWidth()
+                                    }
+                                )
+                                .onGloballyPositioned { coordinates ->
+                                    width = coordinates.size.width
+                                }
+                                .clickable { isDetailsVisible = true }
+                                .animateContentSize()
                         )
 
                         AnimatedVisibility(
                             visible = isDetailsVisible && pagerState.currentPage == page,
-                            modifier = Modifier.align(Alignment.BottomCenter),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .width(with(LocalDensity.current) { width.toDp() }),
                             enter = EnterTransition.None,
                             exit = fadeOut(animationSpec = tween(800))
                         ) {
@@ -115,7 +143,6 @@ fun PhotoScrim(
                 }
             }
         }
-
     }
 }
 
@@ -126,11 +153,13 @@ private fun PhotoDetails(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().background(Color.Black.copy(alpha = 0.7f))
+        modifier = modifier.background(Color.Black.copy(alpha = 0.7f))
     ) {
         Text(
             text = userName,
-            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
             textAlign = TextAlign.Center,
             color = Color.White
         )
@@ -138,7 +167,9 @@ private fun PhotoDetails(
         if (description.isNotBlank()) {
             Text(
                 text = description,
-                modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 10.sp,
                 lineHeight = 10.sp,
