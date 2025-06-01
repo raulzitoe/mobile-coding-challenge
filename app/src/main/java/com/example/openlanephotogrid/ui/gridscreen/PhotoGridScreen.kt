@@ -170,7 +170,7 @@ private fun PhotosRow(
                 if (LocalInspectionMode.current) {
                     Image(
                         painter = painterResource(
-                            id = when(photo1.id) {
+                            id = when (photo1.id) {
                                 "1" -> R.drawable.mockimage1
                                 "2" -> R.drawable.mockimage2
                                 else -> R.drawable.mockimage3
@@ -194,7 +194,7 @@ private fun PhotosRow(
                 if (LocalInspectionMode.current) {
                     Image(
                         painter = painterResource(
-                            id = when(photo2.id) {
+                            id = when (photo2.id) {
                                 "1" -> R.drawable.mockimage1
                                 "2" -> R.drawable.mockimage2
                                 else -> R.drawable.mockimage3
