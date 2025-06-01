@@ -11,7 +11,7 @@ import javax.inject.Inject
 class PhotoRepository @Inject constructor(
     private val apiService: UnsplashApi
 ) {
-    fun getPhotosFlow() : Flow<PagingData<List<PhotoModel>>> {
+    fun getPhotosFlow() : Flow<PagingData<PhotoModel>> {
         return Pager(
             config = PagingConfig(pageSize = 20),
             pagingSourceFactory = { PhotosPagingSource(apiService) }

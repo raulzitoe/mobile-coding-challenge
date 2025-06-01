@@ -28,8 +28,11 @@ data class PhotoModel(
         return PhotoUIModel(
             id = id,
             thumbnailUrl = urls.thumb,
+            fullImageUrl = urls.small,
             width = width,
-            height = height
+            height = height,
+            user = user.name,
+            description = description.orEmpty()
         )
     }
 }

@@ -5,5 +5,6 @@ import com.example.openlanephotogrid.ui.model.PhotoUIModel
 import kotlinx.coroutines.flow.Flow
 
 data class PhotoGridScreenState(
-    val photosFlow: Flow<PagingData<List<PhotoUIModel>>>
+    val photosFlow: Flow<PagingData<PhotoUIModel>>,
+    val selectedPhotoId: String?
 )

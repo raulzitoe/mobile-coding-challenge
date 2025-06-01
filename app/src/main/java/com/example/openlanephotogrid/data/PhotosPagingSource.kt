@@ -9,17 +9,17 @@ import kotlinx.coroutines.ensureActive
 
 class PhotosPagingSource(
     private val service: UnsplashApi,
-) : PagingSource<Int, List<PhotoModel>>() {
+) : PagingSource<Int, PhotoModel>() {
     override suspend fun load(
         params: LoadParams<Int>
-    ): LoadResult<Int, List<PhotoModel>> {
+    ): LoadResult<Int, PhotoModel> {
         try {
             val nextPageNumber = params.key ?: 1
             val response = service.getPhotos(nextPageNumber)
             val data = response.body()
 
             return LoadResult.Page(
-                data = data.orEmpty().chunked(2),
+                data = data.orEmpty(),
                 prevKey = null,
                 nextKey = nextPageNumber + 1
             )
@@ -29,7 +29,7 @@ class PhotosPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, List<PhotoModel>>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, PhotoModel>): Int? {
         return null
     }
 }
