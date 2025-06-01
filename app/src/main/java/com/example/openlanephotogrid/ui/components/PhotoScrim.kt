@@ -6,6 +6,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,22 +33,38 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import com.example.openlanephotogrid.R
 import com.example.openlanephotogrid.ui.model.PhotoUIModel
 import com.example.openlanephotogrid.ui.theme.OPENLANEPhotoGridTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * Displays a full-screen view of a photo, allowing users to swipe through a gallery of photos.
+ * It also shows details like the username and description, which fade out after a short delay.
+ *
+ * @param photosFlow A [Flow] of [PagingData] containing [PhotoUIModel] items. This provides the
+ * data for the photo gallery.
+ * @param selectedPhotoId The ID of the photo that should be initially displayed. If `null`,
+ * the scrim is not shown.
+ * @param onSelectedPhotoChanged A callback function that is invoked when the selected photo
+ * changes due to user interaction (swiping or dismissing the dialog). It receives the ID of the
+ * new selected photo, or `null` if the dialog is dismissed.
+ * @param modifier Optional [Modifier] for theming and styling.
+ */
 @Composable
 fun PhotoScrim(
     photosFlow: Flow<PagingData<PhotoUIModel>>,
@@ -103,7 +120,7 @@ fun PhotoScrim(
                     var width by remember { mutableIntStateOf(0) }
 
                     Box {
-                        AsyncImage(
+                        SubcomposeAsyncImage(
                             model = photos[page]?.fullImageUrl,
                             contentDescription = null,
                             contentScale = if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
@@ -123,7 +140,21 @@ fun PhotoScrim(
                                     width = coordinates.size.width
                                 }
                                 .clickable { isDetailsVisible = true }
-                                .animateContentSize()
+                                .animateContentSize(),
+                            error = {
+                                // Workaround to have previews
+                                if (LocalInspectionMode.current) {
+                                    Image(
+                                        painter = painterResource(R.drawable.mockimage1),
+                                        contentDescription = null,
+                                        contentScale = if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
+                                            ContentScale.FillHeight
+                                        } else {
+                                            ContentScale.FillWidth
+                                        }
+                                    )
+                                }
+                            },
                         )
 
                         AnimatedVisibility(
@@ -179,13 +210,23 @@ private fun PhotoDetails(
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PhotoScrimPreview() {
+    val mockImage = PhotoUIModel(
+        id = "1",
+        thumbnailUrl = "",
+        fullImageUrl = "",
+        width = 200,
+        height = 300,
+        user = "User Name",
+        description = "Some Photo Description",
+    )
+
     OPENLANEPhotoGridTheme {
         PhotoScrim(
-            photosFlow = flowOf(),
-            selectedPhotoId = null,
+            photosFlow = MutableStateFlow(PagingData.from(listOf(mockImage))),
+            selectedPhotoId = "1",
             onSelectedPhotoChanged = {}
         )
     }
